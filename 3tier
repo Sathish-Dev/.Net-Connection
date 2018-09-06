@@ -1,0 +1,167 @@
+BLL.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _3TierArchitecture
+{
+    class BLL
+    {
+        public string InsertUser(Model objUserDetails)
+        {
+            DAL objUserDAL = new DAL();
+            try
+            {
+                return objUserDAL.Insert(objUserDetails);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objUserDAL = null;
+            }
+        }
+    }
+}
+
+
+DAL.cs
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _3TierArchitecture
+{
+    class DAL
+    {
+        SqlConnection con = new SqlConnection(@"Data Source=10.100.8.148;Initial Catalog=training;User ID=training;Password=training");
+        SqlCommand cmd;
+        SqlDataAdapter adapt;
+
+        public string Insert(Model insert)
+        {
+            con.Open();
+            cmd = new SqlCommand("insert into tier values(@no,@name,@age)",con);
+            cmd.Parameters.AddWithValue("@no", insert.num);
+            cmd.Parameters.AddWithValue("@name", insert.name1);
+            cmd.Parameters.AddWithValue("@age", insert.age1);
+            cmd.CommandType = CommandType.Text;
+            cmd.ExecuteNonQuery();
+            string strMessage = (string)cmd.Parameters["@ERROR"].Value;
+            con.Close();
+            return strMessage;
+            
+        }
+    }
+}
+
+Model.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace _3TierArchitecture
+{
+    class Model
+    {
+        private int number;
+        private string name;
+        private int age;
+
+        public int num
+        {
+            get
+            {
+                return number;
+            }
+            set
+            {
+                number = value;
+            }
+        } 
+
+        public string name1
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+            }
+        }
+        public int age1
+        {
+            get
+            {
+                return age;
+            }
+            set
+            {
+                age = value;
+            }
+        }
+    }
+}
+
+
+Form.cs
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace _3TierArchitecture
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string Output = string.Empty;
+            Model m = new Model();
+            m.num = int.Parse(textBox1.Text);
+            m.name1 = textBox2.Text;
+            m.age1 = int.Parse(textBox3.Text);
+            BLL objUserBLL = new BLL();
+            Output=objUserBLL.InsertUser(m);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // TODO: This line of code loads data into the 'trainingDataSet2.tier' table. You can move, or remove it, as needed.
+            this.tierTableAdapter.Fill(this.trainingDataSet2.tier);
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            this.tierTableAdapter.Fill(this.trainingDataSet2.tier);
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
